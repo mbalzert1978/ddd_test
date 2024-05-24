@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "NUOqlBC0908=",
+  "success": true,
+  "projectFilePath": "/home/miorio/Dokumente/code/c#/2024/mai/ddd_test/src/Infrastructure/Infrastructure.csproj",
+  "expectedPackageFiles": [
+    "/home/miorio/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.1/microsoft.extensions.dependencyinjection.abstractions.8.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
