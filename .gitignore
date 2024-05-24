@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode
 
+# C#
+bin/
+obj/
+
 ### VisualStudioCode ###
 .vscode
 !.vscode/settings.json
@@ -21,3 +25,4 @@
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
+src/Application/obj/Debug/net8.0/Application.AssemblyInfoInputs.cache
