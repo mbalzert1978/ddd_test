@@ -26,10 +26,6 @@ public class Result<T>
         _error = error;
     }
 
-    public T Unwrap() => IsSuccess ? _value : throw new UnwrapFailedException(UwrpErrMsg, _error);
-
-    public T? UnwrapOrDefault() => IsSuccess ? _value : default(T);
-
     public bool Is_Ok() => IsSuccess;
 
     public bool IsOkAnd(Func<T, bool> predicate) => IsSuccess && predicate(_value);
@@ -58,6 +54,10 @@ public class Result<T>
 
     public Result<U> AndThen<U>(Func<T, Result<U>> op) =>
         IsSuccess ? op(_value) : Result<U>.Failure(_error);
+
+    public T Unwrap() => IsSuccess ? _value : throw new UnwrapFailedException(UwrpErrMsg, _error);
+
+    public T? UnwrapOrDefault() => IsSuccess ? _value : default(T);
 
     public T UnwrapOr(T defaultValue) => IsSuccess ? _value : defaultValue;
 
