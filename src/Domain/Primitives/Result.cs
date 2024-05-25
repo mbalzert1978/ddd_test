@@ -12,58 +12,55 @@ public class Result<T>
     private const string ConstrErrMsg =
         "Result must be either success with a value or failure with an error.";
     private readonly T _value;
-    private readonly Error _error;
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
+    private readonly Error _err;
+    private readonly bool _ok;
 
-    private Result(bool isSuccess, T value, Error error)
+    public bool IsOk() => _ok;
+
+    public bool IsErr() => !IsOk();
+
+    private Result(bool ok, T value, Error err)
     {
-        if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
+        bool isInvalidResult = ok && err != Error.None || !ok && err == Error.None;
+        if (isInvalidResult)
             throw new ArgumentException(ConstrErrMsg);
 
-        IsSuccess = isSuccess;
+        _err = err;
+        _ok = ok;
         _value = value;
-        _error = error;
     }
 
-    public bool Is_Ok() => IsSuccess;
+    public bool IsOkAnd(Func<T, bool> predicate) => IsOk() && predicate(_value);
 
-    public bool IsOkAnd(Func<T, bool> predicate) => IsSuccess && predicate(_value);
+    public T? Ok() => IsOk() ? _value : default;
 
-    public bool Is_Err() => IsFailure;
-
-    public T? Ok() => IsSuccess ? _value : default;
-
-    public Error? Err() => IsFailure ? _error : default;
+    public Error? Err() => IsErr() ? _err : default;
 
     public Result<U> Map<U>(Func<T, U> op) =>
-        IsSuccess ? Result<U>.Success(op(_value)) : Result<U>.Failure(_error);
+        IsOk() ? Result<U>.Ok(op(_value)) : Result<U>.Err(_err);
 
-    public U MapOr<U>(U defaultValue, Func<T, U> op) => IsSuccess ? op(_value) : defaultValue;
+    public U MapOr<U>(U defaultValue, Func<T, U> op) => IsOk() ? op(_value) : defaultValue;
 
-    public IEnumerable<T?> Iter() => IsSuccess ? [Ok()] : [];
+    public IEnumerable<T?> Iter() => IsOk() ? [Ok()] : [];
 
     public T Expect(string message) =>
-        IsSuccess ? _value : throw new UnwrapFailedException(message, _error);
+        IsOk() ? _value : throw new UnwrapFailedException(message, _err);
 
     public Error ExpectError(string message) =>
-        IsFailure ? _error : throw new UnwrapFailedException(message, _value);
+        IsErr() ? _err : throw new UnwrapFailedException(message, _value);
 
     public Error UnwrapError() =>
-        IsFailure ? _error : throw new UnwrapFailedException(UwrpErrMsg, _value);
+        IsErr() ? _err : throw new UnwrapFailedException(UwrpErrMsg, _value);
 
-    public Result<U> AndThen<U>(Func<T, Result<U>> op) =>
-        IsSuccess ? op(_value) : Result<U>.Failure(_error);
+    public Result<U> AndThen<U>(Func<T, Result<U>> op) => IsOk() ? op(_value) : Result<U>.Err(_err);
 
-    public T Unwrap() => IsSuccess ? _value : throw new UnwrapFailedException(UwrpErrMsg, _error);
+    public T Unwrap() => IsOk() ? _value : throw new UnwrapFailedException(UwrpErrMsg, _err);
 
-    public T? UnwrapOrDefault() => IsSuccess ? _value : default(T);
+    public T? UnwrapOrDefault() => IsOk() ? _value : default(T);
 
-    public T UnwrapOr(T defaultValue) => IsSuccess ? _value : defaultValue;
+    public T UnwrapOr(T defaultValue) => IsOk() ? _value : defaultValue;
 
-    public T UnwrapOrElse(Func<Error, T> op) => IsFailure ? op(_error) : _value;
+    public static Result<T> Ok(T value) => new(true, value, Error.None);
 
-    public static Result<T> Success(T value) => new(true, value, Error.None);
-
-    public static Result<T> Failure(Error error) => new(false, default, error);
+    public static Result<T> Err(Error error) => new(false, default, error);
 }
