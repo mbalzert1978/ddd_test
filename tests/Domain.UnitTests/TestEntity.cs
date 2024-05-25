@@ -20,8 +20,6 @@ public class EntityTests
         Assert.False(a.Equals((object)b));
     }
 
-
-
     [Fact]
     public void EntitiesOfDifferentTypes_WhenComparedUsingIEquatableInterface_ReturnFalse()
     {

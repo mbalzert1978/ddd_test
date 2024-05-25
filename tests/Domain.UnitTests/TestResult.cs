@@ -1,4 +1,5 @@
 ﻿namespace Domain.UnitTests;
+
 using Domain;
 
 public class ResultTests
@@ -7,7 +8,6 @@ public class ResultTests
     {
         return new Error("Error code", "Error message");
     }
-
 
     private static Result<string> SqThenToString(int x)
     {
@@ -35,8 +35,6 @@ public class ResultTests
         Assert.True(result.IsFailure);
     }
 
-
-
     [Fact]
     public void IsOk_when_called_should_return_boolean_representing_success_or_failure()
     {
@@ -56,6 +54,7 @@ public class ResultTests
         result = Result<int>.Failure(GetTestError());
         Assert.False(result.IsOkAnd(value => value == 10));
     }
+
     [Fact]
     public void IsErr_when_called_should_return_boolean_representing_success_or_failure()
     {
@@ -76,6 +75,7 @@ public class ResultTests
         result = Result<int>.Failure(GetTestError());
         Assert.Throws<Result<int>.UnwrapFailedException>(() => result.Unwrap());
     }
+
     [Fact]
     public void UnwrapOrDefault_when_called_Should_Return_Value_On_Success_or_default_on_failure()
     {
@@ -96,6 +96,7 @@ public class ResultTests
         result = Result<string>.Failure(GetTestError());
         Assert.Null(result.Ok());
     }
+
     [Fact]
     public void Err_when_called_returns_error_on_failure_or_null_on_success()
     {
@@ -115,6 +116,7 @@ public class ResultTests
         result = Result<int>.Failure(GetTestError()).Map(x => x * x);
         Assert.True(result.Is_Err());
     }
+
     [Fact]
     public void MapOr_when_called_returns_the_provided_default_or_maps_a_fn_to_the_contained_success_value()
     {
@@ -123,8 +125,8 @@ public class ResultTests
 
         result = Result<string>.Failure(GetTestError());
         Assert.Equal(42, result.MapOr(42, v => v.Length));
-
     }
+
     [Fact]
     public void Iter_when_called_should_iterate_over_the_possible_contained_value()
     {
@@ -140,7 +142,9 @@ public class ResultTests
     {
         var result = Result<int>.Failure(GetTestError());
         var customMessage = "Custom failure message";
-        var exception = Assert.Throws<Result<int>.UnwrapFailedException>(() => result.Expect(customMessage));
+        var exception = Assert.Throws<Result<int>.UnwrapFailedException>(
+            () => result.Expect(customMessage)
+        );
         Assert.Contains(customMessage, exception.Message);
     }
 
@@ -153,8 +157,9 @@ public class ResultTests
         var overflowResult = Result<int>.Success(1_000_000).AndThen(SqThenToString);
         Assert.Equal("overflowed", overflowResult.Err().Description);
 
-        var initialError = Result<int>.Failure(new Error("ErrorCode", "not a number")).AndThen(SqThenToString);
+        var initialError = Result<int>
+            .Failure(new Error("ErrorCode", "not a number"))
+            .AndThen(SqThenToString);
         Assert.Equal("not a number", initialError.Err().Description);
     }
-
 }

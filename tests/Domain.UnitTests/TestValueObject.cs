@@ -83,8 +83,7 @@
             }
         }
 
-        private class MultiplePropertiesValueObject(string property1,
-                                                    int property2) : ValueObject
+        private class MultiplePropertiesValueObject(string property1, int property2) : ValueObject
         {
             public string Property1 { get; } = property1;
             public int Property2 { get; } = property2;
