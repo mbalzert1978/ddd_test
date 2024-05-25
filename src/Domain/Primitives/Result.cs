@@ -1,32 +1,5 @@
 ﻿namespace Domain;
 
-// public class Result
-// {
-//     private const string InvalidResult = "Result must be either success or failure, but not both.";
-
-//     private Result(bool isSuccess, Error error)
-//     {
-//         if (isSuccess
-//             && error != Error.None
-//             || !isSuccess
-//             && error == Error.None)
-//         {
-//             throw new ArgumentException(InvalidResult,
-//                                         nameof(error));
-//         }
-//         IsSuccess = isSuccess;
-//         Error = error;
-//     }
-
-//     public bool IsSuccess { get; }
-//     public bool IsFailure => !IsSuccess;
-
-//     public Error Error { get; }
-
-//     public static Result Success() => new(true, Error.None);
-//     public static Result Failure(Error error) => new(false, error);
-// }
-
 public class Result<T>
 {
     public class UnwrapFailedException(string message, object valueOrError) : System.Exception(message)
@@ -34,24 +7,18 @@ public class Result<T>
         public object ValueOrError { get; } = valueOrError;
     }
 
-
     private const string UwrpErrMsg = "Cannot retrieve the value from a failed result.";
     private const string ConstrErrMsg = "Result must be either success with a value or failure with an error.";
     private readonly T _value;
     private readonly Error _error;
     public bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
-    private Result(bool isSuccess,
-                   T value,
-                   Error error)
+    private Result(bool isSuccess, T value, Error error)
     {
         if (isSuccess
-           && error != Error.None
-           || !isSuccess
-           && error == Error.None)
-        {
-            throw new ArgumentException(ConstrErrMsg);
-        }
+            && error != Error.None
+            || !isSuccess
+            && error == Error.None) throw new ArgumentException(ConstrErrMsg);
 
         IsSuccess = isSuccess;
         _value = value;
