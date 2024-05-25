@@ -25,5 +25,14 @@ trim_trailing_whitespace = false
 # C# files
 [*.cs]
 max_line_length = 100
-indent_style = space
-indent_size = 4
+dotnet_sort_system_directives_first = true
+csharp_indent_case_contents = true
+csharp_indent_braces = false
+csharp_new_line_before_open_brace = true
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+

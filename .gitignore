@@ -4,6 +4,7 @@
 # C#
 bin/
 obj/
+logs/
 
 ### VisualStudioCode ###
 .vscode
