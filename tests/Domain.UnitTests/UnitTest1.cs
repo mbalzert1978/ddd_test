@@ -3,86 +3,59 @@ namespace Domain.UnitTests;
 public class EntityTests
 {
     [Fact]
-    public void EntitiesOfDifferentTypes_WhenComparedUsingEqualityOperator_ReturnFalse()
+    public void Entity_WhenComparedToAnotherEntityShouldReturnFalseWhenTheyAreNotTheSameType()
     {
-        // Arrange
-        var entity1 = new TestEntity1(Guid.NewGuid());
-        var entity2 = new TestEntity2(Guid.NewGuid());
+        (FakeEntityA a, FakeEntityB b) = Setup();
 
-        // Act
-        var result1 = entity1 == entity2;
-        var result2 = entity1!= entity2;
-
-        // Assert
-        Assert.False(result1);
-        Assert.True(result2);
+        Assert.False(a == b);
+        Assert.True(a != b);
     }
 
     [Fact]
     public void EntitiesOfDifferentTypes_WhenComparedUsingEqualsMethod_ReturnFalse()
     {
-        // Arrange
-        var entity1 = new TestEntity1(Guid.NewGuid());
-        var entity2 = new TestEntity2(Guid.NewGuid());
+        (FakeEntityA a, FakeEntityB b) = Setup();
 
-        // Act
-        var result1 = entity1.Equals(entity2);
-        var result2 = entity1.Equals((object)entity2);
-
-        // Assert
-        Assert.False(result1);
-        Assert.False(result2);
+        Assert.False(a.Equals(b));
+        Assert.False(a.Equals((object)b));
     }
+
+
 
     [Fact]
     public void EntitiesOfDifferentTypes_WhenComparedUsingIEquatableInterface_ReturnFalse()
     {
-        // Arrange
-        var entity1 = new TestEntity1(Guid.NewGuid());
-        var entity2 = new TestEntity2(Guid.NewGuid());
+        (FakeEntityA a, FakeEntityB b) = Setup();
 
-        // Act
-        var result = ((IEquatable<Entity>)entity1).Equals(entity2);
-
-        // Assert
-        Assert.False(result);
+        Assert.False(((IEquatable<Entity>)a).Equals(b));
     }
 
     [Fact]
     public void EntitiesOfDifferentTypes_WhenComparedUsingObjectReferenceEquals_ReturnFalse()
     {
-        // Arrange
-        var entity1 = new TestEntity1(Guid.NewGuid());
-        var entity2 = new TestEntity2(Guid.NewGuid());
+        (FakeEntityA a, FakeEntityB b) = Setup();
 
-        // Act
-        var result = ReferenceEquals(entity1, entity2);
-
-        // Assert
-        Assert.False(result);
+        Assert.False(ReferenceEquals(a, b));
     }
 
     [Fact]
     public void EntitiesOfDifferentTypes_WhenComparedUsingObjectReferenceEquals_WithNull_ReturnFalse()
     {
         // Arrange
-        var entity1 = new TestEntity1(Guid.NewGuid());
-        Entity? entity2 = null;
+        FakeEntityA a = new(Guid.NewGuid());
+        Entity? b = null;
 
-        // Act
-        var result = ReferenceEquals(entity1, entity2);
-
-        // Assert
-        Assert.False(result);
+        Assert.False(ReferenceEquals(a, b));
     }
 
-    private class TestEntity1 : Entity
-    {
-        public TestEntity1(Guid id) : base(id) { }
-    }
+    private class FakeEntityA(Guid id) : Entity(id) { }
 
-    private class TestEntity2 : Entity
+    private class FakeEntityB(Guid id) : Entity(id) { }
+
+    private static (FakeEntityA, FakeEntityB) Setup()
     {
-        public TestEntity2(Guid id) : base(id) { }
+        FakeEntityA a = new(Guid.NewGuid());
+        FakeEntityB b = new(Guid.NewGuid());
+        return (a, b);
     }
 }
