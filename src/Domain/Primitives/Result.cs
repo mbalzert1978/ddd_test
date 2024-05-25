@@ -26,9 +26,3 @@ public class Result
     public static Result Success() => new(true, Error.None);
     public static Result Failure(Error error) => new(false, error);
 }
-
-public sealed record Error(string Code, string? Description = null)
-{
-    public static readonly Error None = new(string.Empty,
-                                            string.Empty);
-}
