@@ -16,132 +16,132 @@ public class ResultTests
             checked
             {
                 int sq = x * x;
-                return Result<string>.Success(sq.ToString());
+                return Result<string>.Ok(sq.ToString());
             }
         }
         catch (OverflowException)
         {
-            return Result<string>.Failure(new Error("ErrorCode", "overflowed"));
+            return Result<string>.Err(new Error("ErrorCode", "Overflowed"));
         }
     }
 
     [Fact]
-    public void Result_when_created_should_set_values_on_success_or_failure()
+    public void Result_WhenCreated_ShouldSetValuesOnOkOrErr()
     {
-        var result = Result<int>.Success(10);
-        Assert.True(result.IsSuccess);
+        var result = Result<int>.Ok(10);
+        Assert.True(result.IsOk());
 
-        result = Result<int>.Failure(GetTestError());
-        Assert.True(result.IsFailure);
+        result = Result<int>.Err(GetTestError());
+        Assert.True(result.IsErr());
     }
 
     [Fact]
-    public void IsOk_when_called_should_return_boolean_representing_success_or_failure()
+    public void IsOk_WhenCalled_ShouldReturnBooleanRepresentingOkOrErr()
     {
-        var result = Result<int>.Success(10);
-        Assert.True(result.Is_Ok());
+        var result = Result<int>.Ok(10);
+        Assert.True(result.IsOk());
 
-        result = Result<int>.Failure(GetTestError());
-        Assert.False(result.Is_Ok());
+        result = Result<int>.Err(GetTestError());
+        Assert.False(result.IsOk());
     }
 
     [Fact]
-    public void IsOkAnd_when_called_should_return_boolean_representing_success_and_predicate()
+    public void IsOkAnd_WhenCalled_ShouldReturnBooleanRepresentingOkAndPredicate()
     {
-        var result = Result<int>.Success(10);
+        var result = Result<int>.Ok(10);
         Assert.True(result.IsOkAnd(value => value == 10));
 
-        result = Result<int>.Failure(GetTestError());
+        result = Result<int>.Err(GetTestError());
         Assert.False(result.IsOkAnd(value => value == 10));
     }
 
     [Fact]
-    public void IsErr_when_called_should_return_boolean_representing_success_or_failure()
+    public void IsErr_WhenCalled_ShouldReturnBooleanRepresentingOkOrErr()
     {
-        var result = Result<int>.Success(10);
-        Assert.False(result.Is_Err());
+        var result = Result<int>.Ok(10);
+        Assert.False(result.IsErr());
 
-        result = Result<int>.Failure(GetTestError());
-        Assert.True(result.Is_Err());
+        result = Result<int>.Err(GetTestError());
+        Assert.True(result.IsErr());
     }
 
     [Fact]
-    public void Unwrap_Should_Return_Value_On_Success_or_throw_unwrap_exception_on_failure()
+    public void Unwrap_ShouldReturnValueOnOkOrThrowUnwrapExceptionOnErr()
     {
         var expectedValue = 100;
-        var result = Result<int>.Success(expectedValue);
+        var result = Result<int>.Ok(expectedValue);
         Assert.Equal(expectedValue, result.Unwrap());
 
-        result = Result<int>.Failure(GetTestError());
+        result = Result<int>.Err(GetTestError());
         Assert.Throws<Result<int>.UnwrapFailedException>(() => result.Unwrap());
     }
 
     [Fact]
-    public void UnwrapOrDefault_when_called_Should_Return_Value_On_Success_or_default_on_failure()
+    public void UnwrapOrDefault_WhenCalled_ShouldReturnValueOnOkOrDefaultOnErr()
     {
         var expectedValue = 100;
-        var result = Result<int>.Success(expectedValue);
+        var result = Result<int>.Ok(expectedValue);
         Assert.Equal(expectedValue, result.UnwrapOrDefault());
 
-        result = Result<int>.Failure(GetTestError());
+        result = Result<int>.Err(GetTestError());
         Assert.Equal(default(int), result.UnwrapOrDefault());
     }
 
     [Fact]
-    public void Ok_when_called_returns_value_on_success_or_null_on_failure()
+    public void Ok_WhenCalled_ReturnsValueOnOkOrNullOnErr()
     {
-        var result = Result<string>.Success("Hello World");
+        var result = Result<string>.Ok("Hello World");
         Assert.Equal("Hello World", result.Ok());
 
-        result = Result<string>.Failure(GetTestError());
+        result = Result<string>.Err(GetTestError());
         Assert.Null(result.Ok());
     }
 
     [Fact]
-    public void Err_when_called_returns_error_on_failure_or_null_on_success()
+    public void Err_WhenCalled_ReturnsErrorOnErrOrNullOnOk()
     {
-        var result = Result<string>.Success("Hello World");
+        var result = Result<string>.Ok("Hello World");
         Assert.Null(result.Err());
 
-        result = Result<string>.Failure(GetTestError());
+        result = Result<string>.Err(GetTestError());
         Assert.Equal(GetTestError(), result.Err());
     }
 
     [Fact]
-    public void Map_when_called_should_map_a_result_t_to_result_u_by_applying_a_fn_leaving_an_failure_untouched()
+    public void Map_WhenCalled_ShouldMapAResultTToResultUByApplyingAFnLeavingAnErrUntouched()
     {
-        var result = Result<int>.Success(10).Map(x => x * x);
-        Assert.Equal(100, result.Unwrap());
+        var result = Result<int>.Ok(10);
+        Assert.Equal(100, result.Map(x => x * x).Unwrap());
 
-        result = Result<int>.Failure(GetTestError()).Map(x => x * x);
-        Assert.True(result.Is_Err());
+        result = Result<int>.Err(GetTestError());
+        Assert.True(result.Map(x => x * x).IsErr());
     }
 
     [Fact]
-    public void MapOr_when_called_returns_the_provided_default_or_maps_a_fn_to_the_contained_success_value()
+    public void MapOr_WhenCalled_ReturnsTheProvidedDefaultOrMapsAFnToTheContainedOkValue()
     {
-        var result = Result<string>.Success("foo");
+        var result = Result<string>.Ok("foo");
         Assert.Equal(3, result.MapOr(42, v => v.Length));
 
-        result = Result<string>.Failure(GetTestError());
+        result = Result<string>.Err(GetTestError());
         Assert.Equal(42, result.MapOr(42, v => v.Length));
     }
 
     [Fact]
-    public void Iter_when_called_should_iterate_over_the_possible_contained_value()
+    public void Iter_WhenCalled_ShouldIterateOverThePossibleContainedValue()
     {
-        var result = Result<int>.Success(7);
+        var result = Result<int>.Ok(7);
         Assert.Equal(7, result.Iter().First());
 
-        result = Result<int>.Failure(GetTestError());
+        result = Result<int>.Err(GetTestError());
         Assert.Empty(result.Iter().Take(1));
     }
 
     [Fact]
-    public void Expect_Should_Throw_With_Custom_Message_On_Failure()
+    public void Expect_ShouldThrowWithCustomMessageOnErr()
     {
-        var result = Result<int>.Failure(GetTestError());
-        var customMessage = "Custom failure message";
+        var result = Result<int>.Err(GetTestError());
+        var customMessage = "Custom error message";
         var exception = Assert.Throws<Result<int>.UnwrapFailedException>(
             () => result.Expect(customMessage)
         );
@@ -149,17 +149,17 @@ public class ResultTests
     }
 
     [Fact]
-    public void AndThen_Should_Apply_Function_On_Success()
+    public void AndThen_ShouldApplyFunctionOnOkAndLeavingAnErrUntouched()
     {
-        var result = Result<int>.Success(2).AndThen(SqThenToString);
+        var result = Result<int>.Ok(2).AndThen(SqThenToString);
         Assert.Equal("4", result.Unwrap());
 
-        var overflowResult = Result<int>.Success(1_000_000).AndThen(SqThenToString);
-        Assert.Equal("overflowed", overflowResult.Err().Description);
+        var overflowResult = Result<int>.Ok(1_000_000).AndThen(SqThenToString);
+        Assert.Equal("Overflowed", overflowResult.Err().Description);
 
         var initialError = Result<int>
-            .Failure(new Error("ErrorCode", "not a number"))
+            .Err(new Error("ErrorCode", "Not a number"))
             .AndThen(SqThenToString);
-        Assert.Equal("not a number", initialError.Err().Description);
+        Assert.Equal("Not a number", initialError.Err().Description);
     }
 }
