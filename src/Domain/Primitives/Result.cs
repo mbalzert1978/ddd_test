@@ -2,14 +2,13 @@
 
 public class Result<T>
 {
-    public class UnwrapFailedException(string message, object valueOrError)
-        : System.Exception(message)
+    public class UnwrapFailedException(string message, object valueOrError) : Exception(message)
     {
         public object ValueOrError { get; } = valueOrError;
     }
 
-    private const string UwrpErrMsg = "Cannot retrieve the value from a failed result.";
-    private const string ConstrErrMsg =
+    private const string UnwrapErrorMessage = "Cannot retrieve the value from a failed result.";
+    private const string InvalidResultMessage =
         "Result must be either success with a value or failure with an error.";
     private readonly T _value;
     private readonly Error _err;
@@ -23,7 +22,7 @@ public class Result<T>
     {
         bool isInvalidResult = ok && err != Error.None || !ok && err == Error.None;
         if (isInvalidResult)
-            throw new ArgumentException(ConstrErrMsg);
+            throw new ArgumentException(InvalidResultMessage);
 
         _err = err;
         _ok = ok;
@@ -50,11 +49,12 @@ public class Result<T>
         IsErr() ? _err : throw new UnwrapFailedException(message, _value);
 
     public Error UnwrapError() =>
-        IsErr() ? _err : throw new UnwrapFailedException(UwrpErrMsg, _value);
+        IsErr() ? _err : throw new UnwrapFailedException(UnwrapErrorMessage, _value);
 
     public Result<U> AndThen<U>(Func<T, Result<U>> op) => IsOk() ? op(_value) : Result<U>.Err(_err);
 
-    public T Unwrap() => IsOk() ? _value : throw new UnwrapFailedException(UwrpErrMsg, _err);
+    public T Unwrap() =>
+        IsOk() ? _value : throw new UnwrapFailedException(UnwrapErrorMessage, _err);
 
     public T? UnwrapOrDefault() => IsOk() ? _value : default(T);
 
