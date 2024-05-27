@@ -1,66 +1,171 @@
 ﻿namespace Domain;
 
-public class Result<T>
+public abstract class Result<T, E>
 {
     public class UnwrapFailedException(string message, object valueOrError) : Exception(message)
     {
         public object ValueOrError { get; } = valueOrError;
     }
 
-    private const string UnwrapErrorMessage = "Cannot retrieve the value from a failed result.";
-    private const string InvalidResultMessage =
-        "Result must be either success with a value or failure with an error.";
-    private readonly T _value;
-    private readonly Error _err;
-    private readonly bool _ok;
 
-    public bool IsOk() => _ok;
-
-    public bool IsErr() => !IsOk();
-
-    private Result(bool ok, T value, Error err)
+    public abstract bool IsOk();
+    public abstract bool IsOkAnd(Func<T, bool> predicate);
+    public abstract bool IsErr();
+    public abstract bool IsErrAnd(Func<E, bool> predicate);
+    public abstract T? Ok();
+    public abstract E? Err();
+    public abstract Result<U, E> Map<U>(Func<T, U> op);
+    public abstract U MapOr<U>(U defaultValue, Func<T, U> op);
+    public abstract U MapOrElse<U>(Func<E, U> f, Func<T, U> op);
+    public abstract Result<T, O> MapErr<O>(Func<E, O> op);
+    public abstract Result<U, E> AndThen<U>(Func<T, Result<U, E>> op);
+    public abstract Result<T, E> OrElse(Func<E, Result<T, E>> op);
+    public abstract T Unwrap();
+    public abstract E UnwrapErr();
+    public abstract T? UnwrapOrDefault();
+    public abstract T UnwrapOr(T defaultValue);
+    public abstract T UnwrapOrElse(Func<E, T> f);
+    public abstract T Expect(string message);
+    public abstract E ExpectErr(string message);
+    public abstract IEnumerable<T?> Iter();
+    public static Result<T, E> Ok(T value) => new OkResult(value);
+    public static Result<T, E> Err(E error) => new ErrResult(error);
+    private class OkResult(T value) : Result<T, E>
     {
-        bool isInvalidResult = ok && err != Error.None || !ok && err == Error.None;
-        if (isInvalidResult)
-            throw new ArgumentException(InvalidResultMessage);
+        private const string UnwrapErrorMessage = "Cannot unwrap error from a success result.";
 
-        _err = err;
-        _ok = ok;
-        _value = value;
+        private T Value { get; } = value;
+
+        public static bool operator ==(OkResult? left, OkResult? right)
+        {
+            if (left is null || right is null)
+                return false;
+
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(OkResult? left, OkResult? right)
+        {
+            return !Equals(left, right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            if (obj.GetType() != GetType())
+                return false;
+            if (obj is not OkResult result)
+                return false;
+
+            return Equals(Value, result.Value);
+        }
+
+        public bool Equals(OkResult? other)
+        {
+            if (other is null)
+                return false;
+            if (other.GetType() != GetType())
+                return false;
+
+            return Equals(Value, other.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode() * 41;
+        }
+
+        public override bool IsOk() => true;
+        public override bool IsOkAnd(Func<T, bool> predicate) => predicate(Value);
+        public override bool IsErr() => false;
+        public override bool IsErrAnd(Func<E, bool> predicate) => false;
+        public override T? Ok() => Value;
+        public override E? Err() => default;
+        public override Result<U, E> Map<U>(Func<T, U> op) => Result<U, E>.Ok(op(Value));
+        public override U MapOr<U>(U defaultValue, Func<T, U> op) => op(Value);
+        public override U MapOrElse<U>(Func<E, U> f, Func<T, U> op) => op(Value);
+        public override Result<T, O> MapErr<O>(Func<E, O> op) => Result<T, O>.Ok(Value);
+        public override Result<U, E> AndThen<U>(Func<T, Result<U, E>> op) => op(Value);
+        public override Result<T, E> OrElse(Func<E, Result<T, E>> op) => Result<T, E>.Ok(Value);
+        public override IEnumerable<T?> Iter() => [Value];
+        public override T Unwrap() => Value;
+        public override E UnwrapErr() => throw new UnwrapFailedException(UnwrapErrorMessage, Value);
+        public override T? UnwrapOrDefault() => Value;
+        public override T UnwrapOr(T defaultValue) => Value;
+        public override T UnwrapOrElse(Func<E, T> f) => Value;
+        public override T Expect(string message) => Value;
+        public override E ExpectErr(string message) => throw new UnwrapFailedException(message, Value);
+
+
     }
 
-    public bool IsOkAnd(Func<T, bool> predicate) => IsOk() && predicate(_value);
+    private class ErrResult(E error) : Result<T, E>
+    {
+        private const string UnwrapErrorMessage = "Cannot unwrap a failure result.";
 
-    public T? Ok() => IsOk() ? _value : default;
+        private E Error { get; } = error;
 
-    public Error? Err() => IsErr() ? _err : default;
+        public static bool operator ==(ErrResult? left, ErrResult? right)
+        {
+            if (left is null || right is null)
+                return false;
 
-    public Result<U> Map<U>(Func<T, U> op) =>
-        IsOk() ? Result<U>.Ok(op(_value)) : Result<U>.Err(_err);
+            return Equals(left, right);
+        }
 
-    public U MapOr<U>(U defaultValue, Func<T, U> op) => IsOk() ? op(_value) : defaultValue;
+        public static bool operator !=(ErrResult? left, ErrResult? right)
+        {
+            return !Equals(left, right);
+        }
 
-    public IEnumerable<T?> Iter() => IsOk() ? [Ok()] : [];
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            if (obj.GetType() != GetType())
+                return false;
+            if (obj is not ErrResult result)
+                return false;
 
-    public T Expect(string message) =>
-        IsOk() ? _value : throw new UnwrapFailedException(message, _err);
+            return Equals(Error, result.Error);
+        }
 
-    public Error ExpectError(string message) =>
-        IsErr() ? _err : throw new UnwrapFailedException(message, _value);
+        public bool Equals(ErrResult? other)
+        {
+            if (other is null)
+                return false;
+            if (other.GetType() != GetType())
+                return false;
 
-    public Error UnwrapError() =>
-        IsErr() ? _err : throw new UnwrapFailedException(UnwrapErrorMessage, _value);
+            return Equals(Error, other.Error);
+        }
 
-    public Result<U> AndThen<U>(Func<T, Result<U>> op) => IsOk() ? op(_value) : Result<U>.Err(_err);
+        public override int GetHashCode()
+        {
+            return Error.GetHashCode() * 41;
+        }
 
-    public T Unwrap() =>
-        IsOk() ? _value : throw new UnwrapFailedException(UnwrapErrorMessage, _err);
 
-    public T? UnwrapOrDefault() => IsOk() ? _value : default(T);
-
-    public T UnwrapOr(T defaultValue) => IsOk() ? _value : defaultValue;
-
-    public static Result<T> Ok(T value) => new(true, value, Error.None);
-
-    public static Result<T> Err(Error error) => new(false, default, error);
+        public override bool IsOk() => false;
+        public override bool IsOkAnd(Func<T, bool> predicate) => false;
+        public override bool IsErr() => true;
+        public override bool IsErrAnd(Func<E, bool> predicate) => predicate(Error);
+        public override T? Ok() => default;
+        public override E? Err() => Error;
+        public override Result<U, E> Map<U>(Func<T, U> op) => Result<U, E>.Err(Error);
+        public override U MapOr<U>(U defaultValue, Func<T, U> op) => defaultValue;
+        public override U MapOrElse<U>(Func<E, U> f, Func<T, U> op) => f(Error);
+        public override Result<T, O> MapErr<O>(Func<E, O> op) => Result<T, O>.Err(op(Error));
+        public override Result<U, E> AndThen<U>(Func<T, Result<U, E>> op) => Result<U, E>.Err(Error);
+        public override Result<T, E> OrElse(Func<E, Result<T, E>> op) => op(Error);
+        public override IEnumerable<T?> Iter() => [];
+        public override T Unwrap() => throw new UnwrapFailedException(UnwrapErrorMessage, Error);
+        public override E UnwrapErr() => Error;
+        public override T? UnwrapOrDefault() => default(T);
+        public override T UnwrapOr(T defaultValue) => defaultValue;
+        public override T UnwrapOrElse(Func<E, T> f) => f(Error);
+        public override T Expect(string message) => throw new UnwrapFailedException(message, Error);
+        public override E ExpectErr(string message) => Error;
+    }
 }
