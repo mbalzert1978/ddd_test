@@ -24,15 +24,42 @@ trim_trailing_whitespace = false
 
 # C# files
 [*.cs]
-max_line_length = 100
-dotnet_sort_system_directives_first = true
+# Basis-Formatierung
+max_line_length = 100                    # Rustfmt default
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Using-Direktiven
+dotnet_sort_system_directives_first = false  # Rust sortiert alphabetisch
+dotnet_separate_import_directive_groups = false
+
+# Einrückung
 csharp_indent_case_contents = true
 csharp_indent_braces = false
-csharp_new_line_before_open_brace = all
-csharp_new_line_before_else = true
-csharp_new_line_before_catch = true
-csharp_new_line_before_finally = true
-csharp_new_line_before_members_in_object_initializers = true
-csharp_new_line_before_members_in_anonymous_types = true
-csharp_new_line_between_query_expression_clauses = true
+csharp_indent_block_contents = true
+
+# Neue Zeilen (mehr Rust-like)
+csharp_new_line_before_open_brace = none     # Rust style
+csharp_new_line_before_else = false          # Rust style
+csharp_new_line_before_catch = false         # Rust style
+csharp_new_line_before_finally = false       # Rust style
+
+# Spaces
+csharp_space_after_cast = false              # Wie Rust
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+
+# Klammern
+csharp_preserve_single_line_statements = false
+csharp_preserve_single_line_blocks = true
+
+# Naming (Rust-ähnlich)
+dotnet_naming_rule.private_fields.severity = suggestion
+dotnet_naming_rule.private_fields.symbols = private_fields
+dotnet_naming_rule.private_fields.style = snake_case_style
+
+dotnet_naming_style.snake_case_style.capitalization = snake_case
 
