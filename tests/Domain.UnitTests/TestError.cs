@@ -1,12 +1,10 @@
-﻿namespace Domain.UnitTests;
+namespace Domain.UnitTests;
 
-using Domain;
+using Domain.Primitives;
 
-public class ErrorTests
-{
+public class ErrorTests {
     [Fact]
-    public void Error_WithEmptyCodeAndNonEmptyDescription_IsCreatedCorrectly()
-    {
+    public void Error_WithEmptyCodeAndNonEmptyDescription_IsCreatedCorrectly() {
         // Arrange
         string code = string.Empty;
         string description = "Test Description";
@@ -20,8 +18,7 @@ public class ErrorTests
     }
 
     [Fact]
-    public void Error_WithEmptyCodeAndNullDescription_IsCreatedCorrectly()
-    {
+    public void Error_WithEmptyCodeAndNullDescription_IsCreatedCorrectly() {
         // Arrange
         string code = string.Empty;
         string? description = null;
@@ -35,8 +32,7 @@ public class ErrorTests
     }
 
     [Fact]
-    public void Error_WithNonEmptyCodeAndNonEmptyDescription_IsCreatedCorrectly()
-    {
+    public void Error_WithNonEmptyCodeAndNonEmptyDescription_IsCreatedCorrectly() {
         // Arrange
         string code = "Test Code";
         string description = "Test Description";
@@ -50,8 +46,7 @@ public class ErrorTests
     }
 
     [Fact]
-    public void Error_WithNonEmptyCodeAndNullDescription_IsCreatedCorrectly()
-    {
+    public void Error_WithNonEmptyCodeAndNullDescription_IsCreatedCorrectly() {
         // Arrange
         string code = "Test Code";
         string? description = null;
@@ -65,8 +60,7 @@ public class ErrorTests
     }
 
     [Fact]
-    public void Error_WithNone_HasEmptyCodeAndDescription()
-    {
+    public void Error_WithNone_HasEmptyCodeAndDescription() {
         // Arrange
         string expectedCode = string.Empty;
         string expectedDescription = string.Empty;

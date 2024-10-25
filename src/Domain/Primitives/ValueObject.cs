@@ -1,7 +1,6 @@
-﻿namespace Domain;
+namespace Domain.Primitives;
 
-public abstract class ValueObject
-{
+public abstract class ValueObject {
     public abstract IEnumerable<object> GetAtomicValues();
 
     public bool Equals(ValueObject? other) => other is not null && ValuesAreEqual(other);
