@@ -8,6 +8,13 @@
         "dotnet-csharpier"
       ],
       "rollForward": true
+    },
+    "roslynator.dotnet.cli": {
+      "version": "0.9.3",
+      "commands": [
+        "roslynator"
+      ],
+      "rollForward": true
     }
   }
 }
