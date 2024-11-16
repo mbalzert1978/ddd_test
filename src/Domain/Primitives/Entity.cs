@@ -1,7 +1,7 @@
 namespace Domain.Primitives;
 
 public abstract class Entity(Guid id) : IEquatable<Entity> {
-    protected Guid Id { get; } = id;
+    private Guid Id { get; } = id;
 
     public static bool operator ==(Entity? left, Entity? right) => Equals(left, right);
 

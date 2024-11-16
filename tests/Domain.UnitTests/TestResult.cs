@@ -5,7 +5,7 @@ using static Domain.Primitives.Factories;
 namespace Domain.UnitTests;
 
 public class ResultTests {
-    private const string ERROR_MESSAGE = "Nothing here";
+    private const string ErrorMessage = "Nothing here";
 
     private static Result<int, int> Square(int x) => Ok<int, int>(x * x);
 
@@ -29,7 +29,7 @@ public class ResultTests {
 
     [Fact]
     public void Result_WhenCreatedWithErrValue_ShouldReturnFalseForIsOk() =>
-        Err<int>(ERROR_MESSAGE).IsOk().Should().BeFalse();
+        Err<int>(ErrorMessage).IsOk().Should().BeFalse();
 
     [Theory]
     [InlineData(2, true)]
@@ -43,7 +43,7 @@ public class ResultTests {
 
     [Fact]
     public void Result_WhenErrAndCheckedAgainstPredicate_ShouldReturnFalse() =>
-        Err<int>(ERROR_MESSAGE).IsOk(x => x > 1).Should().BeFalse();
+        Err<int>(ErrorMessage).IsOk(x => x > 1).Should().BeFalse();
 
     [Theory]
     [InlineData(-3)]
@@ -54,12 +54,12 @@ public class ResultTests {
 
     [Fact]
     public void Result_WhenCreatedWithErrValue_ShouldReturnTrueForIsErr() =>
-        Err<int>(ERROR_MESSAGE).IsErr().Should().BeTrue();
+        Err<int>(ErrorMessage).IsErr().Should().BeTrue();
 
     [Fact]
     public void Result_WhenCreatedWithErrValue_ShouldReturnTrueForIsErrAndContainCorrectValue() {
-        Err<int>(ERROR_MESSAGE).IsErr(out var v).Should().BeTrue();
-        v.Should().Be(ERROR_MESSAGE);
+        Err<int>(ErrorMessage).IsErr(out var v).Should().BeTrue();
+        v.Should().Be(ErrorMessage);
 
     }
 
@@ -90,9 +90,9 @@ public class ResultTests {
 
     [Fact]
     public void Result_WhenErr_ShouldReturnDefaultForOptionalOkAndCorrectValueForOptionalErr() {
-        var result = Err<int>(ERROR_MESSAGE);
+        var result = Err<int>(ErrorMessage);
         result.OptionalOk.Should().Be(default);
-        result.OptionalErr.Should().Be(ERROR_MESSAGE);
+        result.OptionalErr.Should().Be(ErrorMessage);
     }
 
     [Theory]
@@ -109,7 +109,7 @@ public class ResultTests {
     public void Result_WhenErrAndMapped_ShouldReturnOriginalErr() =>
         Try(() => double.Parse("Nothing here"))
             .Map(i => i * 2)
-            .IsErr(error => typeof(FormatException).Equals(error));
+            .IsErr(error => error is FormatException);
 
     [Theory]
     [InlineData("foo", 3)]
@@ -150,7 +150,7 @@ public class ResultTests {
     [Fact]
     public void Result_WhenErrAndExpect_ShouldThrowUnwrapFailedExceptionWithSpecifiedMessage() =>
         Assert.Throws<UnwrapFailedException>(
-            () => Err<int>(ERROR_MESSAGE).Expect("Testing expect")
+            () => Err<int>(ErrorMessage).Expect("Testing expect")
         );
 
     [Theory]

@@ -6,8 +6,8 @@ public class ErrorTests {
     [Fact]
     public void Error_WithEmptyCodeAndNonEmptyDescription_IsCreatedCorrectly() {
         // Arrange
-        string code = string.Empty;
-        string description = "Test Description";
+        var code = string.Empty;
+        const string description = "Test Description";
 
         // Act
         Error error = new(code, description);
@@ -20,7 +20,7 @@ public class ErrorTests {
     [Fact]
     public void Error_WithEmptyCodeAndNullDescription_IsCreatedCorrectly() {
         // Arrange
-        string code = string.Empty;
+        var code = string.Empty;
         string? description = null;
 
         // Act
@@ -34,8 +34,8 @@ public class ErrorTests {
     [Fact]
     public void Error_WithNonEmptyCodeAndNonEmptyDescription_IsCreatedCorrectly() {
         // Arrange
-        string code = "Test Code";
-        string description = "Test Description";
+        const string code = "Test Code";
+        const string description = "Test Description";
 
         // Act
         Error error = new(code, description);
@@ -48,7 +48,7 @@ public class ErrorTests {
     [Fact]
     public void Error_WithNonEmptyCodeAndNullDescription_IsCreatedCorrectly() {
         // Arrange
-        string code = "Test Code";
+        const string code = "Test Code";
         string? description = null;
 
         // Act
@@ -62,11 +62,11 @@ public class ErrorTests {
     [Fact]
     public void Error_WithNone_HasEmptyCodeAndDescription() {
         // Arrange
-        string expectedCode = string.Empty;
-        string expectedDescription = string.Empty;
+        var expectedCode = string.Empty;
+        var expectedDescription = string.Empty;
 
         // Act
-        Error error = Error.None;
+        var error = Error.None;
 
         // Assert
         Assert.Equal(expectedCode, error.Code);

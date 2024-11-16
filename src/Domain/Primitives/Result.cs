@@ -4,26 +4,25 @@ public readonly record struct Result<T, E>
     where T : notnull {
     private readonly bool _isOk;
     private readonly T _value;
-    private readonly E? _error;
 
     public T? OptionalOk => _value;
-    public E? OptionalErr => _error;
+    public E? OptionalErr { get; }
 
     public Result(T value) {
         ArgumentNullException.ThrowIfNull(value);
         _value = value;
-        _error = default;
+        OptionalErr = default;
         _isOk = true;
     }
 
     public Result(E error) {
         ArgumentNullException.ThrowIfNull(error);
         _value = default!;
-        _error = error;
+        OptionalErr = error;
         _isOk = false;
     }
 
-    internal void Deconstruct(out bool isSuccess, out T value, out E error) {
+    private void Deconstruct(out bool isSuccess, out T value, out E error) {
         if (_isOk) {
             isSuccess = true;
             value = _value;
@@ -31,7 +30,7 @@ public readonly record struct Result<T, E>
         } else {
             isSuccess = false;
             value = default!;
-            error = _error!;
+            error = OptionalErr!;
         }
     }
 
@@ -64,13 +63,13 @@ public readonly record struct Result<T, E>
     public T Expect(string message) => _isOk ? _value : throw new UnwrapFailedException(message);
 
     public E ExpectErr(string message) =>
-        !_isOk ? _error! : throw new UnwrapFailedException(message);
+        !_isOk ? OptionalErr! : throw new UnwrapFailedException(message);
 
     public Result<U, E> Map<U>(Func<T, U> mapFunc)
         where U : notnull =>
         this switch {
             (true, var value, _) => Factories.Ok<U, E>(mapFunc(value)),
-            _ => Factories.Err<U, E>(_error!),
+            _ => Factories.Err<U, E>(OptionalErr!),
         };
 
     public Result<T, F> MapErr<F>(Func<E, F> op)
@@ -84,7 +83,7 @@ public readonly record struct Result<T, E>
         where U : notnull =>
         this switch {
             (true, var value, _) => op(value),
-            _ => Factories.Err<U, E>(_error!),
+            _ => Factories.Err<U, E>(OptionalErr!),
         };
 
     public U MapOr<U>(U @default, Func<T, U> op) =>
