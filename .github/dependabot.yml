@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # Enable version updates for NuGet
+  - package-ecosystem: "nuget"
+    # Look for NuGet dependency info from the `root` directory
+    directory: "/"
+    # Check for updates once a week
+    schedule:
+      interval: "weekly"
+    # Specify labels for pull requests
+    labels:
+      - "dependencies"
+      - "autoMerge"
+    # Allow up to 10 open pull requests for nuget dependencies
+    open-pull-requests-limit: 10
+    # Set the target branch for pull requests
+    target-branch: "main"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    # Look for `.github/workflows` in the `root` directory
+    directory: "/"
+    # Check for updates once a week
+    schedule:
+      interval: "weekly"
+    # Specify labels for pull requests
+    labels:
+      - "dependencies"
+      - "autoMerge"
+    # Allow up to 5 open pull requests for github-actions dependencies
+    open-pull-requests-limit: 5

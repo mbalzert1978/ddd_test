@@ -19,7 +19,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
     app.UseSwagger().UseSwaggerUI();
 
-
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
