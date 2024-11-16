@@ -59,7 +59,8 @@ public class ResultTests {
     [Fact]
     public void Result_WhenCreatedWithErrValue_ShouldReturnTrueForIsErrAndContainCorrectValue() {
         Err<int>(ERROR_MESSAGE).IsErr(out var v).Should().BeTrue();
-        v.Should().BeOfType(typeof(string)).And.Be(ERROR_MESSAGE);
+        v.Should().Be(ERROR_MESSAGE);
+
     }
 
     [Theory]
