@@ -47,8 +47,8 @@ public readonly record struct Result<T, E>
     public bool IsErr() => !_isOk;
 
     public bool IsErr(out E error) {
-        (var isError, _, error) = this;
-        return !isError;
+        (var isOk, _, error) = this;
+        return !isOk;
     }
 
     public bool IsErr(Func<E, bool> predicate) => this switch {
