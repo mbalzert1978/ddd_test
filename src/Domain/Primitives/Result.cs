@@ -23,18 +23,15 @@ public readonly record struct Result<T, E>
     }
 
     private void Deconstruct(out bool isSuccess, out T value, out E error) {
-        if (_isOk) {
-            isSuccess = true;
-            value = _value;
-            error = default!;
-        } else {
-            isSuccess = false;
-            value = default!;
-            error = OptionalErr!;
-        }
+        isSuccess = _isOk;
+        value = _isOk ? _value : default!;
+        error = _isOk ? default! : OptionalErr!;
     }
 
-    public bool IsOk() => _isOk;
+    public bool IsOk() => this switch {
+        (true, _, _) => true,
+        _ => false,
+    };
 
     public bool IsOk(out T value) {
         (var isOk, value, _) = this;
@@ -54,16 +51,21 @@ public readonly record struct Result<T, E>
         return !isError;
     }
 
-    public bool IsErr(Func<E, bool> predicate) =>
-        this switch {
-            (false, _, var value) => predicate(value),
-            _ => false,
-        };
+    public bool IsErr(Func<E, bool> predicate) => this switch {
+        (false, _, var error) => predicate(error),
+        _ => false,
+    };
 
-    public T Expect(string message) => _isOk ? _value : throw new UnwrapFailedException(message);
+    public T Expect(string message) => this switch {
+        (true, var value, _) => value,
+        _ => throw new UnwrapFailedException(message),
+    };
 
     public E ExpectErr(string message) =>
-        !_isOk ? OptionalErr! : throw new UnwrapFailedException(message);
+        this switch {
+            (false, _, var error) => error,
+            _ => throw new UnwrapFailedException(message),
+        };
 
     public Result<U, E> Map<U>(Func<T, U> mapFunc)
         where U : notnull =>
